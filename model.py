@@ -7,8 +7,10 @@ import numpy as np # linear algebra
 import pandas as pd
 import librosa.display
 import librosa
-#from keras.layers import Dropout, Dense, TimeDistributed
-#from keras.models import Sequential
+from keras.layers import Dropout, Dense, TimeDistributed
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPooling2D, Flatten, LSTM
+
 from sklearn.preprocessing import LabelEncoder
 import pickle
 #from tqdm import tqdm
@@ -38,12 +40,13 @@ print("x shape",X.shape)
 print("SAMPLE shape",X[0].shape)
 split=1800
 train,test = X[:split,:],X[split:,:]
-train_y,test_y= Y[:split,:],Y[split:,:]
+train_y,test_y= Y[:split],Y[split:]
 print("train shape ",train.shape)
 print("test shape ",test.shape)
 #print("input_1,input_2",input_1,input_2)
 #print("X shape",X.shape)
-#input_1,input_2=X[0].shape
+input_1=1025
+input_2=431
 train=train.reshape(1800,1025,431,1)
 
 
