@@ -14,6 +14,13 @@ from keras.models import Sequential
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 import pickle
+from tqdm import tqdm
+from PIL import Image
+from PIL import Image
+from numpy import asarray
+
+from keras.utils import to_categorical
+
 df=pd.read_csv("esc50.csv")
 selected=['airplane', 'breathing',  'car_horn', 'cat',  'chirping_birds', 'church_bells', 'clapping',
 'coughing',   'crickets','crying_baby', 'dog', 'door_wood_creaks', 'door_wood_knock',  'engine',
@@ -35,18 +42,26 @@ LabelEncoder=LabelEncoder()
 Y=LabelEncoder.fit_transform(Y)
 Y=to_categorical(Y)
 
+X=[]
+x_path='spectrograms/'
+for i in df.filename:
+    img=Image.open(x_path+i+'.png')
+    img_array=asarray(img)
+    X.append(img_array)
+
+
+print("X:",X[0])
+X=np.array(X).reshape(-1,640, 480, 1)
+##train_x,test_x,train_y,test_y = train_test_split(X, Y, test_size = 0.1, random_state=5, shuffle = True)
+#input_1,input_2=X[0].shape
+print("label shape",Y.shape)
+#print("input_1,input_2",input_1,input_2)
+print("X shape",X.shape)
+
 """
-
-#print("integer: ",integer_encoded)
-X=ex.extract()
-X=np.array(X)
-print("data shape",X.shape)
-print("data row",X[0].shape)
-input_1,iput_2=X[0].shape
-
 model=Sequential()
 
-model.add(Conv1D(32,kernel_size=(3,3) ,activation="relu",input_shape=()))
+model.add(Conv1D(32,kernel_size=(3,3) ,activation="relu",input_shape=(input_1,input_2)))
 model.add(Dropout(0,2))
 model.add(Conv1D(32,kernel_size=(3,3) ,activation="relu"))
 model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -56,4 +71,21 @@ model.add(Conv1D(64,kernel_size=(3,3) ,activation="relu"))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Conv1D(128,kernel_size=(3,3) ,activation="relu"))
 model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Flatten())
+model.add(Dense(64, activation = 'relu'))
+model.add(Dropout(0.5))
+model.add(Dense(30, activation="softmax"))
+
+# compile the model
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Training and Evaluation of the model
+model.fit(train_x, train_y, batch_size = 32 ,epochs=30,validation_split=0.1)
+
+
+# save the model to disk
+filename = 'model1.sav'
+pickle.dump(model, open(filename, 'wb'))
 """
