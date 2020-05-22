@@ -7,12 +7,11 @@ import numpy as np # linear algebra
 import pandas as pd
 import librosa.display
 import librosa
-from keras.layers import Conv2D, MaxPooling2D, Flatten, LSTM
-from keras.layers import Dropout, Dense, TimeDistributed
-from keras.models import Sequential
+#from keras.layers import Dropout, Dense, TimeDistributed
+#from keras.models import Sequential
 from sklearn.preprocessing import LabelEncoder
 import pickle
-from tqdm import tqdm
+#from tqdm import tqdm
 df=pd.read_csv("esc50.csv")
 selected=['airplane', 'breathing',  'car_horn', 'cat',  'chirping_birds', 'church_bells', 'clapping',
 'coughing',   'crickets','crying_baby', 'dog', 'door_wood_creaks', 'door_wood_knock',  'engine',
@@ -37,17 +36,17 @@ Y=LabelEncoder.fit_transform(Y)
 print("label shape",Y.shape)
 print("x shape",X.shape)
 print("SAMPLE shape",X[0].shape)
-
+split=1800
+train,test = X[:split,:],X[split:,:]
+train_y,test_y= Y[:split,:],Y[split:,:]
+print("train shape ",train.shape)
+print("test shape ",test.shape)
 #print("input_1,input_2",input_1,input_2)
 #print("X shape",X.shape)
 #input_1,input_2=X[0].shape
-#train_x=np.reshape(train_x,(2400,input_1,input_2,1))
+train=train.reshape(1800,1025,431,1)
 
-train_x,test_x,train_y,test_y = train_test_split(X, Y, test_size = 0.1, random_state=5, shuffle = True)
-print(train_x.shape)
-input_1=1025
-input_2=43
-train_x=train_x.reshape(2160,input_1,input_2,1)
+
 model=Sequential()
 
 model.add(Conv2D(32,kernel_size=(3,3) ,activation="relu",input_shape=(input_1,input_2,1)))
@@ -71,7 +70,7 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 # Training and Evaluation of the model
-model.fit(train_x, train_y, batch_size = 30 ,epochs=10,validation_split=0.1)
+model.fit(train, train_y, batch_size = 30 ,epochs=10,validation_split=0.1)
 
 
 # save the model to disk
