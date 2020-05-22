@@ -1,5 +1,5 @@
 from mpl_toolkits.mplot3d import Axes3D
-from sklearn.preprocessing import StandardScaler
+from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from scipy.io import wavfile
 import matplotlib.pyplot as plt # plotting
@@ -26,7 +26,19 @@ path="audio/44100/"
 
 pickle_in=open("X.pickle","rb")
 X=pickle.load(pickle_in)
+X2=[]
+for i in range(2400):
+    temp=preprocessing.normalize(X[i],norm='max',axis=1)
+    X2.append(temp)
+X2=np.array(X2)
+print("X2 shape", X2.shape)
 
+
+pickle_out=open("X2.pickle","wb")
+pickle.dump(X2,pickle_out)
+pickle_out.close()
+
+"""
 pickle_in1=open("y.pickle","rb")
 Y=pickle.load(pickle_in1)
 
@@ -43,6 +55,9 @@ train,test = X[:split,:],X[split:,:]
 train_y,test_y= Y[:split],Y[split:]
 print("train shape ",train.shape)
 print("test shape ",test.shape)
+print("1 sample :",X[0])
+
+
 #print("input_1,input_2",input_1,input_2)
 #print("X shape",X.shape)
 input_1=1025
@@ -80,3 +95,4 @@ model.fit(train, train_y, batch_size = 30 ,epochs=10,validation_split=0.1)
 filename = 'model1.sav'
 pickle.dump(model, open(filename, 'wb'))
 pickle.close()
+"""
