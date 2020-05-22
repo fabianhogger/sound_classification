@@ -71,27 +71,36 @@ path="audio/44100/"
 n_fft=2048
 hop_length=512
 X=[]
-#framing audio
-audio,rate=librosa.load('test.wav',sr=44100)
-audio=librosa.resample(audio,rate,22050)#resample to 22050
+for c in selected:
+    wav_file=df[df.category==c].iloc[0,0]
+    print(wav_file,c)
+    #framing audio
+    audio,rate=librosa.load('audio/44100/'+wav_file,sr=44100)
+    audio=librosa.resample(audio,rate,22050)#resample to 22050
+    #audio,index=librosa.effects.trim(audio, top_db=2,frame_length=40, hop_length=512)
+    #signal_n= librosa.util.normalize(audio)#normalize
+    #stft=librosa.core.stft(signal_n,hop_length=hop_length,n_fft=n_fft)#calculate stft
+    #spectrogram=np.abs(stft)#get magnitude
+    #log_spectrogram=librosa.amplitude_to_db(spectrogram)#
 
-mel=librosa.feature.melspectrogram(audio, sr=22050, S=None, n_fft=2048, hop_length=512, win_length=1024)
-print("Mel shape",mel.shape)
-framed_audio=librosa.util.frame(audio, frame_length=41, hop_length=20, axis=-1)
-print("framed",framed_audio.shape)
-#save as image
-"""
-fig = plt.Figure()
-canvas = FigureCanvas(fig)
-ax = fig.add_subplot(111)
-p = librosa.display.specshow(log_spectrogram,sr=22050,hop_length=hop_length, ax=ax, y_axis='log', x_axis='time')
-fig.savefig('spectrograms/'+'SPECT_AUgmented_pitch1.png')
-X.append(log_spectrogram)
+    #audio,index=librosa.effects.trim(audio, top_db=2,frame_length=40, hop_length=512)
+    mel=librosa.feature.melspectrogram(audio, sr=22050, S=None, n_fft=2048, hop_length=512, win_length=1024)
+    #print("Mel shape",mel.shape)
+    framed_audio=librosa.util.frame(mel, frame_length=41, hop_length=20, axis=-1)
+    #print("framed",framed_audio.shape)
+    #save as image
+
+    fig = plt.Figure()
+    canvas = FigureCanvas(fig)
+    ax = fig.add_subplot(111)
+    p = librosa.display.specshow(framed_audio,sr=22050,hop_length=hop_length, ax=ax, y_axis='log', x_axis='time')
+    fig.savefig('classes/mel_framed/mel_spec_fr_'+c+'.png')
+    X.append(framed_audio)
 X=np.array(X)
 print("X shape: ",X.shape)
 print("  Spectrogram shape: ",X[0].shape)
 print("  Spectrogram 1: ",X[0])
-
+"""
 for i in df.filename:
     signal,rate=librosa.load(path+i,sr=44100)
     librosa.resample(signal,rate,22050)
