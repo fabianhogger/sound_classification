@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt # plotting
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import pickle
 def augment(data, noise_factor):
     noise = np.random.randn(len(data))
     augmented_data = data + noise_factor * noise
@@ -51,16 +52,14 @@ def extract():
         signal_n= librosa.util.normalize(signal)#normalize
         stft=librosa.core.stft(signal_n,hop_length=hop_length,n_fft=n_fft)#calculate stft
         spectrogram=np.abs(stft)#get magnitude
-        log_spectrogram=librosa.amplitude_to_db(spectrogram)
+        log_spectrogram=librosa.amplitude_to_db(spectrogram)#apply this to bring to logarithmic scale
+        X.append(log_spectrogram)
         sum=sum+1
         if sum==1198:
-            print("Reached 2nd fase")#apply this to bring to logarithmic scale
-        X.append(log_spectrogram)
-    X=np.array(X)
-    print("data shape",X.shape)
-    print("data row",X[0].shape)
+            print("Reached 2nd fase")
     return X
 
+"""
 df=pd.read_csv("esc50.csv")
 selected=['airplane', 'breathing',  'car_horn', 'cat',  'chirping_birds', 'church_bells', 'clapping',
 'coughing',   'crickets','crying_baby', 'dog', 'door_wood_creaks', 'door_wood_knock',  'engine',
@@ -83,24 +82,36 @@ for c in selected:
     #spectrogram=np.abs(stft)#get magnitude
     #log_spectrogram=librosa.amplitude_to_db(spectrogram)#
 
-    #audio,index=librosa.effects.trim(audio, top_db=2,frame_length=40, hop_length=512)
+    audio,index=librosa.effects.trim(audio, top_db=2,frame_length=40, hop_length=512)
     mel=librosa.feature.melspectrogram(audio, sr=22050, S=None, n_fft=2048, hop_length=512, win_length=1024)
     #print("Mel shape",mel.shape)
-    framed_audio=librosa.util.frame(mel, frame_length=41, hop_length=20, axis=-1)
+    #framed_audio=librosa.util.frame(mel, frame_length=41, hop_length=20, axis=-1)
     #print("framed",framed_audio.shape)
     #save as image
 
     fig = plt.Figure()
     canvas = FigureCanvas(fig)
     ax = fig.add_subplot(111)
-    p = librosa.display.specshow(framed_audio,sr=22050,hop_length=hop_length, ax=ax, y_axis='log', x_axis='time')
-    fig.savefig('classes/mel_framed/mel_spec_fr_'+c+'.png')
-    X.append(framed_audio)
+    p = librosa.display.specshow(mel,sr=22050,hop_length=hop_length, ax=ax, y_axis='log', x_axis='time')
+    fig.savefig('classes/mel_trimed/mel_spec_tr_'+c+'.png')
+    X.append(mel)
 X=np.array(X)
 print("X shape: ",X.shape)
 print("  Spectrogram shape: ",X[0].shape)
 print("  Spectrogram 1: ",X[0])
 """
+df=pd.read_csv("esc50.csv")
+selected=['airplane', 'breathing',  'car_horn', 'cat',  'chirping_birds', 'church_bells', 'clapping',
+    'coughing',   'crickets','crying_baby', 'dog', 'door_wood_creaks', 'door_wood_knock',  'engine',
+     'fireworks', 'footsteps',  'glass_breaking','hand_saw', 'helicopter',  'insects',  'laughing',
+      'mouse_click',  'pouring_water', 'rain', 'rooster','siren', 'sneezing','thunderstorm',  'train','wind']
+df=df.loc[df['category'].isin(selected)]
+path="audio/44100/"
+n_fft=2048
+hop_length=512
+X=[]
+Y=[]
+sum=0
 for i in df.filename:
     signal,rate=librosa.load(path+i,sr=44100)
     librosa.resample(signal,rate,22050)
@@ -109,7 +120,9 @@ for i in df.filename:
     spectrogram=np.abs(stft)
     log_spectrogram=librosa.amplitude_to_db(spectrogram)
     X.append(log_spectrogram)
-
+    cl=df.loc[df['filename']==i,'category'].iloc[0]
+    Y.append(cl)
+    print("filename: ",i,"Class: ",cl)
     fig = plt.Figure()
     canvas = FigureCanvas(fig)
     ax = fig.add_subplot(111)
@@ -117,12 +130,12 @@ for i in df.filename:
     fig.savefig('spectrograms/'+i+'.png')
 
 X=np.array(X)
+Y=np.array(Y)
 print("X shape: ",X.shape)
 print("Spectrogram shape: ",X[0].shape)
 print("Spectrogram 1: ",X[0])
-fig = plt.Figure()
-canvas = FigureCanvas(fig)
-ax = fig.add_subplot(111)
-p = librosa.display.specshow(X[0],sr=22050,hop_length=hop_length, ax=ax, y_axis='log', x_axis='time')
-fig.savefig('spectrograms/'+'ZERO.png')
-"""
+print("label shape: ",Y.shape)
+
+pickle_out = open("y.pickle","wb")#saving the calculations
+pickle.dump(Y, pickle_out)
+pickle_out.close()
