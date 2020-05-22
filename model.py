@@ -14,7 +14,6 @@ from keras.models import Sequential
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 import pickle
-import extract_feat as ex
 df=pd.read_csv("esc50.csv")
 selected=['airplane', 'breathing',  'car_horn', 'cat',  'chirping_birds', 'church_bells', 'clapping',
 'coughing',   'crickets','crying_baby', 'dog', 'door_wood_creaks', 'door_wood_knock',  'engine',
@@ -24,9 +23,27 @@ df=df.loc[df['category'].isin(selected)]
 X=[]
 path="audio/44100/"
 
-X=ex.extract()
+pickle_in=open("y.pickle","rb")#loading them back
+Y=pickle.load(pickle_in)
+#print(Y)
+print(Y)
+print(Y.shape)
+Y=np.concatenate((Y,Y),axis=0)
+print(Y)
+print(Y.shape)
+LabelEncoder=LabelEncoder()
+Y=LabelEncoder.fit_transform(Y)
+Y=to_categorical(Y)
 
 """
+
+#print("integer: ",integer_encoded)
+X=ex.extract()
+X=np.array(X)
+print("data shape",X.shape)
+print("data row",X[0].shape)
+input_1,iput_2=X[0].shape
+
 model=Sequential()
 
 model.add(Conv1D(32,kernel_size=(3,3) ,activation="relu",input_shape=()))
