@@ -10,9 +10,10 @@ import librosa
 from keras.layers import Dropout, Dense, TimeDistributed
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, LSTM
-
+import play
 from sklearn.preprocessing import LabelEncoder
 import pickle
+import re
 #from tqdm import tqdm
 df=pd.read_csv("esc50.csv")
 selected=['airplane', 'breathing',  'car_horn', 'cat',  'chirping_birds', 'church_bells', 'clapping',
@@ -21,27 +22,23 @@ selected=['airplane', 'breathing',  'car_horn', 'cat',  'chirping_birds', 'churc
   'mouse_click',  'pouring_water', 'rain', 'rooster','siren', 'sneezing','thunderstorm',  'train','wind']
 df=df.loc[df['category'].isin(selected)]
 
-path="audio/44100/"
-
-
-pickle_in=open("X.pickle","rb")
-X=pickle.load(pickle_in)
-X2=[]
-for i in range(2400):
-    temp=preprocessing.normalize(X[i],norm='max',axis=1)
-    X2.append(temp)
-X2=np.array(X2)
-print("X2 shape", X2.shape)
-
-
-pickle_out=open("X2.pickle","wb")
-pickle.dump(X2,pickle_out)
-pickle_out.close()
-
+path="audio/segmented/"
+X=[]
+Y=[ ]
+for filename in df.filename:
+    class_=df.loc[df['filename']==filename,'category'].iloc[0]
+    name=re.sub(".wav","",filename)
+    for i in range(5):
+        tmp=librosa.load(path+name+str(i)+'.wav',sr=44100)
+        X.append(tmp)
+        Y.append(class_)
+print(X)
+X=np.array(X)
+print("X shape: ",X.shape)
+Y=np.array(Y)
+print("Y shape: ",Y.shape)
+print(Y)
 """
-pickle_in1=open("y.pickle","rb")
-Y=pickle.load(pickle_in1)
-
 X=np.array(X)
 #print("X:",X[0].shape)
 Y=np.concatenate((Y,Y))
