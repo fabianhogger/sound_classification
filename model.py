@@ -23,21 +23,26 @@ selected=['airplane', 'breathing',  'car_horn', 'cat',  'chirping_birds', 'churc
 df=df.loc[df['category'].isin(selected)]
 
 path="audio/segmented100/"
+n_fft=2048
+hop_length=512
 X=[]
-Y=[ ]
+Y=[]
 for filename in df.filename:
     class_=df.loc[df['filename']==filename,'category'].iloc[0]
     name=re.sub(".wav","",filename)
     for i in range(50):
-        tmp=librosa.load(path+name+str(i)+'.wav',sr=44100)
-        X.append(tmp)
+        tmp,rate=librosa.load(path+name+str(i)+'.wav',sr=44100)
+        stft=librosa.core.stft(tmp,hop_length=hop_length,n_fft=n_fft)
+        spectrogram=np.abs(stft)
+        log_spectrogram=librosa.amplitude_to_db(spectrogram)
+        X.append(log_spectrogram)
         Y.append(class_)
 print(X)
 X=np.array(X)
 print("X shape: ",X.shape)
 print("X[0] shape: ",X[0].shape)
 
-pickle_out=open("X3.pickle","wb")
+pickle_out=open("X5.pickle","wb")
 pickle.dump(X,pickle_out)
 pickle_out.close()
 Y=np.array(Y)
@@ -50,11 +55,11 @@ print(Y)
 LabelEncoder=LabelEncoder()
 Y=LabelEncoder.fit_transform(Y)
 
-pickle_out=open("Y3.pickle","wb")
+pickle_out=open("Y5.pickle","wb")
 pickle.dump(Y,pickle_out)
 pickle_out.close()
-
 """
+
 X=np.array(X)
 #print("X:",X[0].shape)
 Y=np.concatenate((Y,Y))
