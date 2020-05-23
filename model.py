@@ -67,10 +67,10 @@ pickle_out.close()
 """
 
 
-pickle_in=open("Y8.pickle","rb")#loading them back
+pickle_in=open("Y6.pickle","rb")#loading them back
 Y=pickle.load(pickle_in)
 
-pickle_in=open("X8.pickle","rb")#loading them back
+pickle_in=open("X6.pickle","rb")#loading them back
 X=pickle.load(pickle_in)
 
 
@@ -79,23 +79,22 @@ print("x shape",X.shape)
 print("SAMPLE shape",X[0].shape)
 
 print("X[0] : ",X[0])
-X=X.reshape(50000,9,13,1)
+X=X.reshape(60000,20,9,1)
 #print("reshaped: ",X.shape)
 #print("X[0] after reshape : ",X[0])
 
 model=Sequential()
 
-model.add(Conv2D(64,kernel_size=(3,3) ,activation="relu",input_shape=(9,13,1)))
-model.add(Conv2D(32,(3,3),activation='relu',strides=(1,1),padding='same'))
+model.add(Conv2D(128,kernel_size=(3,3) ,activation="relu",input_shape=(20,9,1)))
 model.add(Conv2D(64,(3,3),activation='relu',strides=(1,1),padding='same'))
 model.add(Conv2D(128,(3,3),activation='relu',strides=(1,1),padding='same'))
+model.add(Conv2D(256,(3,3),activation='relu',strides=(1,1),padding='same'))
 model.add(MaxPooling2D((2,2)))
 model.add(Dropout(0.5))
 model.add(Flatten())
 model.add(Dense(128,activation='relu'))
 model.add(Dense(64,activation='relu'))
 model.add(Dense(30,activation='softmax'))
-
 
 model.summary()
 # compile the model
@@ -104,11 +103,5 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 # Training and Evaluation of the model
-model.fit(X, Y, batch_size = 1 ,epochs=10,validation_split=0.1)
-
-
-# save the model to disk
-filename = 'model1.sav'
-pickle.dump(model, open(filename, 'wb'))
-pickle.close()
-"""
+model.fit(X, Y, batch_size = 30 ,epochs=10,validation_split=0.1)
+model.save("model3.sav")
