@@ -10,14 +10,13 @@ import librosa
 from keras.layers import Dropout, Dense, TimeDistributed
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, LSTM
-import play
 from sklearn.preprocessing import LabelEncoder
 import pickle
 import re
 from python_speech_features import mfcc
 
 #from tqdm import tqdm
-
+"""
 df=pd.read_csv("esc50.csv")
 selected=['airplane', 'breathing',  'car_horn', 'cat',  'chirping_birds', 'church_bells', 'clapping',
 'coughing',   'crickets','crying_baby', 'dog', 'door_wood_creaks', 'door_wood_knock',  'engine',
@@ -26,20 +25,31 @@ selected=['airplane', 'breathing',  'car_horn', 'cat',  'chirping_birds', 'churc
 df=df.loc[df['category'].isin(selected)]
 X=[]
 Y=[]
-for filename in df.filename:
+_min=200000
+rate=44100
+_max=-1
+step=int(rate/10)
+rand1=0
+for i in range(50000):
+    filename=np.random.choice(df['filename'])
     class_=df.loc[df['filename']==filename,'category'].iloc[0]
-    name=re.sub(".wav","",filename)
-    for i in range(50):
-        tmp,rate=librosa.load("audio/segmented100/"+name+str(i)+'.wav',sr=44100)
-        mf=librosa.feature.mfcc(tmp,rate)
-        X.append(mf)
-        Y.append(class_)
+    #name=re.sub(".wav","",filename)
+    #rand1==np.random.randint(0,49)
+    rate,wav=wavfile.read('audio/44100/'+filename)
+    rand_index=np.random.randint(0,wav.shape[0]-step)
+    sample=wav[rand_index:rand_index+step]#ra
+    mf=mfcc(sample,samplerate=44100, winlen=0.025, winstep=0.01, numcep=13, nfilt=26, nfft=1103, lowfreq=0, highfreq=None, preemph=0.97, ceplifter=22, appendEnergy=True)
+    _min=min(np.amin(mf),_min)
+    _max=max(np.amax(mf),_max)
+    X.append(mf)
+    Y.append(class_)
 print(X)
 X=np.array(X)
+X=(X-_min)/(_max-_min)
 print("X shape: ",X.shape)
 print("X[0] shape: ",X[0].shape)
 
-pickle_out=open("X6.pickle","wb")
+pickle_out=open("X8.pickle","wb")
 pickle.dump(X,pickle_out)
 pickle_out.close()
 Y=np.array(Y)
@@ -51,56 +61,17 @@ print(Y)
 LabelEncoder=LabelEncoder()
 Y=LabelEncoder.fit_transform(Y)
 
-pickle_out=open("Y6.pickle","wb")
+pickle_out=open("Y8.pickle","wb")
 pickle.dump(Y,pickle_out)
 pickle_out.close()
-
 """
-path="audio/segmented100/"
-n_fft=2048
-hop_length=512
-pickle_in=open("X5.pickle","rb")#loading them back
-X=pickle.load(pickle_in)
-pickle_in=open("Y5.pickle","rb")#loading them back
+
+
+pickle_in=open("Y8.pickle","rb")#loading them back
 Y=pickle.load(pickle_in)
 
-for filename in df.filename:
-    class_=df.loc[df['filename']==filename,'category'].iloc[0]
-    name=re.sub(".wav","",filename)
-    for i in range(50):
-        tmp,rate=librosa.load(path+name+str(i)+'.wav',sr=44100)
-        stft=librosa.core.stft(tmp,hop_length=hop_length,n_fft=n_fft)
-        spectrogram=np.abs(stft)
-        log_spectrogram=librosa.amplitude_to_db(spectrogram)
-        X.append(log_spectrogram)
-        Y.append(class_)
-print(X)
-X=np.array(X)
-print("X shape: ",X.shape)
-print("X[0] shape: ",X[0].shape)
-
-pickle_out=open("X5.pickle","wb")
-pickle.dump(X,pickle_out)
-pickle_out.close()
-Y=np.array(Y)
-
-
-
-
-print("Y shape: ",Y.shape)
-print(Y)
-
-LabelEncoder=LabelEncoder()
-Y=LabelEncoder.fit_transform(Y)
-
-pickle_out=open("Y5.pickle","wb")
-pickle.dump(Y,pickle_out)
-pickle_out.close()
-
-pickle_in=open("X6.pickle","rb")#loading them back
+pickle_in=open("X8.pickle","rb")#loading them back
 X=pickle.load(pickle_in)
-pickle_in=open("Y6.pickle","rb")#loading them back
-Y=pickle.load(pickle_in)
 
 
 print("label shape",Y.shape)
@@ -108,13 +79,13 @@ print("x shape",X.shape)
 print("SAMPLE shape",X[0].shape)
 
 print("X[0] : ",X[0])
-X=X.reshape(60000,20,9,1)
+X=X.reshape(50000,9,13,1)
 #print("reshaped: ",X.shape)
 #print("X[0] after reshape : ",X[0])
 
 model=Sequential()
 
-model.add(Conv2D(64,kernel_size=(3,3) ,activation="relu",input_shape=(20,9,1)))
+model.add(Conv2D(64,kernel_size=(3,3) ,activation="relu",input_shape=(9,13,1)))
 model.add(Conv2D(32,(3,3),activation='relu',strides=(1,1),padding='same'))
 model.add(Conv2D(64,(3,3),activation='relu',strides=(1,1),padding='same'))
 model.add(Conv2D(128,(3,3),activation='relu',strides=(1,1),padding='same'))
