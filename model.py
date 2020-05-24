@@ -103,5 +103,5 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 # Training and Evaluation of the model
-model.fit(X, Y, batch_size = 30 ,epochs=10,validation_split=0.1)
-model.save("model3.sav")
+model.fit(X, Y, batch_size = 30 ,epochs=30,validation_split=0.1)
+model.save("model4.sav")
