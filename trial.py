@@ -2,6 +2,8 @@ import socket
 import time
 from ssh2.session import Session
 from ssh2.sftp import LIBSSH2_FXF_READ, LIBSSH2_SFTP_S_IRUSR
+import sys
+import make_prediction
 #recording audio with shell command arecord -D sysdefault:CARD=1 -d 10 -f cd -t wav f2.wav
 #take image sudo fswebcam -r 1280x720 --no-banner image3.jpg
 host="192.168.1.76"
@@ -17,16 +19,10 @@ channel=session.open_session()
 test=open("P:\\text.txt","w+")
 test.write("success")
 test.close()
-'''
-sftp = session.sftp_init()
 
-with sftp.open("/home/pi/Desktop/test.wav",LIBSSH2_FXF_READ, LIBSSH2_SFTP_S_IRUSR) as remote_fh,\
-    open("C:/Users/30697/Desktop/file", 'wb') as local_fh:
-    for size, data in remote_fh:
-        local_fh.write(data)
-'''
+command="arecord -D sysdefault:CARD=1 -d"+sys.argv[2]+" -f cd -t wav "+sys.argv[1]+ ".wav\n"
 channel.shell()
-channel.write("arecord -D sysdefault:CARD=1 -d 5 -f cd -t wav f2.wav\n")
+channel.write(command)
 time.sleep(10)
 channel.write("ls\n")
 time.sleep(2)
@@ -38,3 +34,5 @@ memory.write(data.decode())
 channel.close()
 print("exit status{0}".format(channel.get_exit_status()))
 memory.close()
+name=sys.argv[1]+'.wav'
+make_prediction.make_pred(name,sys.argv[2])
