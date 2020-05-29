@@ -41,6 +41,7 @@ def make_pred(name,duration):
     t1=0
     t2=100
     duration=int(duration)
+    duration=10*duration
     for i in  range(duration):#cutting file to 100millisecond pieces
         newAudio = audio[t1:t2]
         t1=t1+100
