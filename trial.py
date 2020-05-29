@@ -14,25 +14,25 @@ socket.connect((host,22))
 session=Session()
 session.handshake(socket)
 session.userauth_password(user,password)
-memory=open("mem.txt","a+")
+#memory=open("mem.txt","a+")
 channel=session.open_session()
-test=open("P:\\text.txt","w+")
-test.write("success")
-test.close()
+#test=open("P:\\text.txt","w+")
+#test.write("success")
+#test.close()
 
-command="arecord -D sysdefault:CARD=1 -d"+sys.argv[2]+" -f cd -t wav "+sys.argv[1]+ ".wav\n"
+command="arecord -D sysdefault:CARD=1 -d"+sys.argv[2]+" -f cd -t wav "+sys.argv[1]+ ".wav\n"#add to the command the time in seconds and the filename to be created
 channel.shell()
 channel.write(command)
-time.sleep(10)
-channel.write("ls\n")
+time.sleep(10)#wait forthe recording to take place
+#channel.write("ls\n")
 time.sleep(2)
-size,data=channel.read()
+#size,data=channel.read()
 #print(data.decode())
 
-memory.write(data.decode())
+#memory.write(data.decode())
 
 channel.close()
 print("exit status{0}".format(channel.get_exit_status()))
 memory.close()
-name=sys.argv[1]+'.wav'
+name=sys.argv[1]+'.wav' #making the string with the filename to be passed to make_pred()
 make_prediction.make_pred(name,sys.argv[2])
