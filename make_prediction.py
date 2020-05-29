@@ -7,13 +7,13 @@ import pandas as pd
 import sys
 # load model
 model = load_model('model3.sav')
-df=pd.read_csv("classes.csv")
-audio=AudioSegment.from_wav(sys.argv[1])
+df=pd.read_csv("classes.csv")#loading the csv with the classes mapped to integers
+audio=AudioSegment.from_wav(sys.argv[1])#opening file 
 X=[]
 t1=0
 t2=100
 duration=int(sys.argv[2])
-for i in  range(duration):
+for i in  range(duration):#cutting file to 100millisecond pieces
     newAudio = audio[t1:t2]
     t1=t1+100
     t2=t2+100
@@ -41,7 +41,7 @@ def make_pred(name,duration):
     t1=0
     t2=100
     duration=int(duration)
-    for i in  range(duration):
+    for i in  range(duration):#cutting file to 100millisecond pieces
         newAudio = audio[t1:t2]
         t1=t1+100
         t2=t2+100
