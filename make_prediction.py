@@ -30,7 +30,7 @@ pred=model.predict(X)
 print("      ")
 pred = pred.argmax(axis=1)
 for i in range(pred.size):
-    print("Class ",df.loc[df['val']==pred[i],'Name'].iloc[0])
+    print("Class ",df.loc[df['val']==pred[i],'Name'].iloc[0])#find class name
 
 def make_pred(name,duration):
     # load model
