@@ -7,7 +7,7 @@
 
 
 Dataset Class distribution
-Dataset used : https://www.kaggle.com/mmoreaux/environmental-sound-classification-50<br/>
+## Dataset used : https://www.kaggle.com/mmoreaux/environmental-sound-classification-50<br/>
 CNN with 8 layers.
 Data extracted are mfccs for 1/10 of a second of audio.
 ## Mel Frequency Cepstral Coefficents 
